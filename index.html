@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<title>Defasagem Salarial — Engenheiros e Arquitetos PMT</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #1D1D1B;
+  --dblue: #164194;
+  --dblue-dark: #0E2B63;
+  --cyan: #00B1EB;
+  --cyan-light: #E6F7FE;
+  --green: #13A538;
+  --green-light: #E8F8EC;
+  --yellow: #FBA000;
+  --yellow-light: #FFF6E5;
+  --red: #E74C3C;
+  --red-light: #FDECEB;
+  --white: #FFFFFF;
+  --light: #F5F7FA;
+  --lgray: #E8ECF0;
+  --gray: #8C9BAB;
+  --txtdark: #2C3345;
+  --txtmid: #546278;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--light);
+  color: var(--txtdark);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== NAVIGATION ===== */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(22,65,148,0.97);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 3px solid var(--cyan);
+  padding: 0 2rem;
+  height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+  /* iOS safe area */
+  padding-left: max(2rem, env(safe-area-inset-left));
+  padding-right: max(2rem, env(safe-area-inset-right));
+}
+.nav-brand {
+  font-size: 0.85rem; font-weight: 700; color: var(--white);
+  letter-spacing: 0.02em;
+}
+.nav-brand span { color: var(--cyan); }
+.nav-links { display: flex; gap: 0.25rem; }
+.nav-links a {
+  color: rgba(255,255,255,0.7); text-decoration: none;
+  font-size: 0.75rem; font-weight: 600; padding: 0.4rem 0.8rem;
+  border-radius: 6px; transition: all 0.2s;
+  letter-spacing: 0.01em;
+}
+.nav-links a:hover, .nav-links a.active {
+  color: var(--white); background: rgba(0,177,235,0.2);
+}
+
+/* ===== HERO ===== */
+.hero {
+  margin-top: 56px;
+  background: linear-gradient(135deg, var(--dblue-dark) 0%, var(--dblue) 60%, #1B5FC4 100%);
+  padding: 4rem 2rem 3rem;
+  position: relative; overflow: hidden;
+  /* iOS safe area */
+  padding-left: max(2rem, env(safe-area-inset-left));
+  padding-right: max(2rem, env(safe-area-inset-right));
+}
+.hero::before {
+  content: ''; position: absolute; top: -50%; right: -20%;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(0,177,235,0.12) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.hero::after {
+  content: ''; position: absolute; bottom: -30%; left: -10%;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(19,165,56,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.hero-content { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+.hero-tag {
+  display: inline-block;
+  background: rgba(0,177,235,0.2); border: 1px solid rgba(0,177,235,0.3);
+  color: var(--cyan); font-size: 0.7rem; font-weight: 700;
+  padding: 0.3rem 0.8rem; border-radius: 20px;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 1rem;
+  animation: fadeIn 0.6s ease-out;
+}
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800;
+  color: var(--white); line-height: 1.1; margin-bottom: 0.6rem;
+  animation: slideUp 0.7s ease-out;
+}
+.hero h1 em { font-style: normal; color: var(--cyan); }
+.hero-sub {
+  font-size: 1.05rem; color: rgba(255,255,255,0.65);
+  font-weight: 500; margin-bottom: 2rem;
+  animation: slideUp 0.8s ease-out;
+}
+
+/* Stats row */
+.stats-row {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+  animation: slideUp 0.9s ease-out;
+}
+.stat-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; padding: 1.2rem 1rem;
+  position: relative; overflow: hidden;
+  -webkit-transition: -webkit-transform 0.3s, background 0.3s;
+  transition: transform 0.3s, background 0.3s;
+}
+.stat-card:hover { -webkit-transform: translateY(-3px); transform: translateY(-3px); background: rgba(255,255,255,0.1); }
+.stat-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.stat-card:nth-child(1)::before { background: var(--white); }
+.stat-card:nth-child(2)::before { background: var(--cyan); }
+.stat-card:nth-child(3)::before { background: var(--yellow); }
+.stat-card:nth-child(4)::before { background: var(--red); }
+.stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.6rem; font-weight: 700; margin-bottom: 0.3rem;
+}
+.stat-card:nth-child(1) .stat-value { color: var(--white); }
+.stat-card:nth-child(2) .stat-value { color: var(--cyan); }
+.stat-card:nth-child(3) .stat-value { color: var(--yellow); }
+.stat-card:nth-child(4) .stat-value { color: var(--red); }
+.stat-label { font-size: 0.75rem; color: rgba(255,255,255,0.55); font-weight: 500; line-height: 1.4; }
+
+/* Timeline */
+.timeline-section {
+  margin-top: 2rem; padding-top: 1.5rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  animation: slideUp 1s ease-out;
+}
+.timeline-title {
+  font-size: 0.7rem; font-weight: 700; color: var(--cyan);
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1rem;
+}
+.timeline {
+  display: flex; gap: 0; position: relative;
+}
+.timeline::before {
+  content: ''; position: absolute; top: 14px; left: 40px; right: 40px;
+  height: 2px; background: rgba(255,255,255,0.15);
+}
+.tl-item {
+  flex: 1; text-align: center; position: relative;
+}
+.tl-dot {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.55rem; font-weight: 800; color: var(--white);
+  margin: 0 auto 0.5rem; position: relative; z-index: 1;
+}
+.tl-item:nth-child(1) .tl-dot { background: var(--gray); }
+.tl-item:nth-child(2) .tl-dot { background: var(--yellow); color: var(--black); }
+.tl-item:nth-child(3) .tl-dot { background: var(--yellow); color: var(--black); }
+.tl-item:nth-child(4) .tl-dot { background: var(--green); }
+.tl-year { font-size: 0.8rem; font-weight: 700; color: var(--white); }
+.tl-desc { font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 0.2rem; line-height: 1.4; }
+.hero-alert {
+  margin-top: 1.2rem;
+  font-size: 0.8rem; color: var(--red); font-weight: 600;
+  font-style: italic;
+}
+
+/* ===== SECTIONS ===== */
+.section {
+  max-width: 1100px; margin: 0 auto;
+  padding: 3rem 2rem;
+}
+.section-header {
+  display: flex; align-items: center; gap: 0.8rem;
+  margin-bottom: 2rem;
+}
+.section-num {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: var(--dblue); color: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; font-weight: 800; flex-shrink: 0;
+}
+.section-title {
+  font-size: 1.3rem; font-weight: 800; color: var(--dblue);
+  letter-spacing: -0.01em;
+}
+
+/* Charts */
+.chart-grid { display: grid; gap: 1.5rem; }
+.chart-grid.two { grid-template-columns: 1fr 1fr; }
+.chart-card {
+  background: var(--white);
+  border-radius: 14px; padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
+  border: 1px solid var(--lgray);
+}
+.chart-card.full { grid-column: 1 / -1; }
+.chart-label {
+  font-size: 0.85rem; font-weight: 700; color: var(--dblue);
+  margin-bottom: 0.3rem;
+}
+.chart-sublabel {
+  font-size: 0.72rem; color: var(--gray); margin-bottom: 1rem;
+}
+.chart-container { position: relative; width: 100%; }
+.chart-container.main { height: 320px; }
+.chart-container.small { height: 250px; }
+
+.callout-box {
+  background: var(--red-light);
+  border-left: 3px solid var(--red);
+  border-radius: 0 8px 8px 0;
+  padding: 0.8rem 1rem; margin-top: 1rem;
+  font-size: 0.8rem; color: var(--txtdark);
+}
+.callout-box strong { color: var(--red); }
+
+/* ===== PROPOSAL ===== */
+.proposal-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-bottom: 2rem; }
+.p-card {
+  border-radius: 14px; padding: 1.5rem; text-align: center;
+  border: 1px solid var(--lgray);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
+  -webkit-transition: -webkit-transform 0.3s;
+  transition: transform 0.3s;
+}
+.p-card:hover { -webkit-transform: translateY(-4px); transform: translateY(-4px); }
+.p-card.base { background: var(--white); }
+.p-card.grat { background: var(--green-light); border-color: rgba(19,165,56,0.2); }
+.p-card.total { background: var(--dblue); border-color: transparent; }
+.p-card-tag {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; margin-bottom: 0.8rem;
+}
+.p-card.base .p-card-tag { color: var(--gray); }
+.p-card.grat .p-card-tag { color: var(--green); }
+.p-card.total .p-card-tag { color: var(--yellow); }
+.p-card-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem;
+}
+.p-card.base .p-card-value { color: var(--txtdark); }
+.p-card.grat .p-card-value { color: var(--green); }
+.p-card.total .p-card-value { color: var(--yellow); }
+.p-card-desc { font-size: 0.78rem; line-height: 1.5; }
+.p-card.base .p-card-desc { color: var(--txtmid); }
+.p-card.grat .p-card-desc { color: var(--txtmid); }
+.p-card.total .p-card-desc { color: rgba(255,255,255,0.65); }
+.p-card-highlight {
+  margin-top: 0.6rem; font-size: 0.75rem; font-weight: 700;
+}
+.p-card.base .p-card-highlight { color: var(--red); }
+.p-card.grat .p-card-highlight { color: var(--green); }
+.p-card.total .p-card-highlight { color: var(--cyan); }
+
+.proposal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+.justification {
+  background: var(--white); border-radius: 14px; padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
+  border: 1px solid var(--lgray);
+}
+.justification h3 {
+  font-size: 1rem; font-weight: 800; color: var(--dblue); margin-bottom: 1rem;
+}
+.justification p {
+  font-size: 0.82rem; color: var(--txtmid); line-height: 1.7; margin-bottom: 0.8rem;
+}
+.justification p strong { color: var(--txtdark); }
+.justification p .hl-green { color: var(--green); font-weight: 700; }
+
+/* ===== CONCLUSION ===== */
+.conclusion-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.conc-col {
+  background: var(--white); border-radius: 14px; overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
+  border: 1px solid var(--lgray);
+}
+.conc-header {
+  padding: 0.9rem 1.3rem; font-size: 0.85rem; font-weight: 800;
+  letter-spacing: 0.03em; text-transform: uppercase;
+}
+.conc-col.pros .conc-header { background: var(--green); color: var(--white); }
+.conc-col.cons .conc-header { background: var(--yellow); color: var(--black); }
+.conc-body { padding: 1.3rem; }
+.conc-item { margin-bottom: 1.2rem; padding-left: 1.3rem; position: relative; }
+.conc-item:last-child { margin-bottom: 0; }
+.conc-item::before {
+  content: ''; position: absolute; left: 0; top: 6px;
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.conc-col.pros .conc-item::before { background: var(--green); }
+.conc-col.cons .conc-item::before { background: var(--yellow); }
+.conc-item h4 { font-size: 0.85rem; font-weight: 700; color: var(--txtdark); margin-bottom: 0.3rem; }
+.conc-item p { font-size: 0.78rem; color: var(--txtmid); line-height: 1.6; }
+
+/* CTA footer */
+.cta-footer {
+  background: var(--dblue);
+  padding: 2rem;
+  text-align: center;
+  margin-top: 1rem;
+}
+.cta-footer p {
+  max-width: 800px; margin: 0 auto;
+  font-size: 0.95rem; color: var(--white); line-height: 1.6; font-weight: 500;
+}
+.cta-footer p strong { color: var(--yellow); }
+
+/* Footer */
+.footer {
+  background: var(--black); padding: 1.5rem 2rem;
+  text-align: center;
+}
+.footer p { font-size: 0.7rem; color: rgba(255,255,255,0.35); }
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp {
+  from { opacity: 0; -webkit-transform: translateY(20px); transform: translateY(20px); }
+  to { opacity: 1; -webkit-transform: translateY(0); transform: translateY(0); }
+}
+
+/* Reveal: default VISIBLE — JS adds .js-reveal-ready to body when observer is confirmed working */
+.reveal {
+  opacity: 1;
+  -webkit-transform: translateY(0);
+  transform: translateY(0);
+  -webkit-transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), -webkit-transform 0.7s cubic-bezier(0.16,1,0.3,1);
+  transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+}
+/* Only hide elements if JS confirmed the observer works */
+body.js-reveal-ready .reveal {
+  opacity: 0;
+  -webkit-transform: translateY(24px);
+  transform: translateY(24px);
+}
+body.js-reveal-ready .reveal.visible {
+  opacity: 1;
+  -webkit-transform: translateY(0);
+  transform: translateY(0);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .hero { padding: 3rem 1.2rem 2rem; }
+  .hero h1 { font-size: 1.7rem; }
+  .hero-sub { font-size: 0.9rem; }
+  .section { padding: 2rem 1.2rem; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+  .stat-value { font-size: 1.25rem; }
+  .stat-label { font-size: 0.68rem; }
+  .timeline { flex-wrap: wrap; gap: 1rem; }
+  .timeline::before { display: none; }
+  .tl-item { flex: 0 0 45%; }
+  .chart-grid.two { grid-template-columns: 1fr; }
+  .chart-container.main { height: 260px; }
+  .chart-container.small { height: 220px; }
+  .proposal-cards { grid-template-columns: 1fr; }
+  .p-card-value { font-size: 1.5rem; }
+  .proposal-body { grid-template-columns: 1fr; }
+  .conclusion-grid { grid-template-columns: 1fr; }
+  .nav-links { display: none; }
+  .nav-brand { font-size: 0.75rem; }
+  .cta-footer p { font-size: 0.85rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">PMT <span>|</span> Engenheiros & Arquitetos</div>
+  <div class="nav-links">
+    <a href="#visao" class="active">Visão Geral</a>
+    <a href="#dados">Dados</a>
+    <a href="#proposta">Proposta</a>
+    <a href="#conclusao">Conclusão</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="visao">
+  <div class="hero-content">
+    <div class="hero-tag">Análise 2016–2026 · Classe A1 · Março 2026</div>
+    <h1>Defasagem Salarial<br><em>Engenheiros e Arquitetos</em></h1>
+    <p class="hero-sub">Prefeitura Municipal de Teresina</p>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value">R$ 5.757,68</div>
+        <div class="stat-label">Salário em 2016<br>(Classe A1)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">R$ 6.553,10</div>
+        <div class="stat-label">Salário atual<br>(antes do 5,25%)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">13,8%</div>
+        <div class="stat-label">Reajuste total<br>acumulado em 10 anos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">~65%</div>
+        <div class="stat-label">IPCA acumulado<br>no mesmo período</div>
+      </div>
+    </div>
+
+    <div class="timeline-section">
+      <div class="timeline-title">Histórico de Reajustes</div>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot">●</div>
+          <div class="tl-year">2016</div>
+          <div class="tl-desc">Salário base: R$ 5.757,68</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot">●</div>
+          <div class="tl-year">2019</div>
+          <div class="tl-desc">Único reajuste: +3,43%<br>→ R$ 5.955,19</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot">●</div>
+          <div class="tl-year">2022</div>
+          <div class="tl-desc">Segundo reajuste: +10,5%<br>→ R$ 6.553,10</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot">●</div>
+          <div class="tl-year">2026</div>
+          <div class="tl-desc">Reajuste linear: +5,25%<br>→ R$ 6.897,14</div>
+        </div>
+      </div>
+      <p class="hero-alert">Em 10 anos, apenas 2 reajustes — totalizando 13,8% contra ~65% de inflação acumulada (IPCA).</p>
+    </div>
+  </div>
+</section>
+
+<!-- DADOS -->
+<section class="section" id="dados">
+  <div class="section-header reveal">
+    <div class="section-num">2</div>
+    <h2 class="section-title">Comparativo de Reajustes · 2016–2026</h2>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-card full reveal">
+      <div class="chart-label">Evolução do Reajuste Salarial Acumulado 2016 a 2026</div>
+      <div class="chart-sublabel">Comparação entre a evolução do salário do engenheiro/arquiteto e a correção pelo IPCA</div>
+      <div class="chart-container main">
+        <canvas id="chartLine"></canvas>
+      </div>
+      <div class="callout-box">
+        <strong>Diferença acumulada: 84,2% vs 13,8%</strong> — O salário mínimo subiu 4,3x mais que o do engenheiro/arquiteto no mesmo período.
+      </div>
+    </div>
+
+    <div class="chart-grid two">
+      <div class="chart-card reveal">
+        <div class="chart-label">Salário em Quantidade de Salários Mínimos</div>
+        <div class="chart-sublabel">Queda de 38% no poder relativo em 10 anos</div>
+        <div class="chart-container small">
+          <canvas id="chartSM"></canvas>
+        </div>
+      </div>
+      <div class="chart-card reveal">
+        <div class="chart-label">Salário Real vs. Corrigido pelo IPCA (R$)</div>
+        <div class="chart-sublabel">*2026 já considera o reajuste linear de 5,25%</div>
+        <div class="chart-container small">
+          <canvas id="chartBar"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROPOSTA -->
+<section class="section" id="proposta">
+  <div class="section-header reveal">
+    <div class="section-num" style="background:var(--green)">3</div>
+    <h2 class="section-title">Proposta · Gratificação de Responsabilidade Técnica</h2>
+  </div>
+
+  <p class="reveal" style="font-size:0.88rem;color:var(--txtmid);margin:-1rem 0 1.5rem;font-style:italic;">
+    Instrumento de recomposição direcionada — exclusivo para servidores ativos no município
+  </p>
+
+  <div class="proposal-cards reveal">
+    <div class="p-card base">
+      <div class="p-card-tag">Reajuste Linear</div>
+      <div class="p-card-value">R$ 6.897,14</div>
+      <div class="p-card-desc">Reajuste de 5,25% sobre o salário atual de R$ 6.553,10</div>
+      <div class="p-card-highlight">Ainda 27,3% abaixo da inflação</div>
+    </div>
+    <div class="p-card grat">
+      <div class="p-card-tag">Gratificação Proposta</div>
+      <div class="p-card-value">+ R$ 3.000</div>
+      <div class="p-card-desc">Gratificação de Produtividade ou Responsabilidade Técnica</div>
+      <div class="p-card-highlight">Exclusiva para servidores ativos</div>
+    </div>
+    <div class="p-card total">
+      <div class="p-card-tag">Remuneração Total</div>
+      <div class="p-card-value">R$ 9.897,14</div>
+      <div class="p-card-desc">Salário + Gratificação recupera competitividade</div>
+      <div class="p-card-highlight">≈ 6,11 salários mínimos</div>
+    </div>
+  </div>
+
+  <div class="proposal-body">
+    <div class="chart-card reveal">
+      <div class="chart-label">Impacto da Gratificação (em Salários Mínimos)</div>
+      <div class="chart-sublabel">Comparação: 2016 vs 2026 sem e com gratificação</div>
+      <div class="chart-container small">
+        <canvas id="chartImpact"></canvas>
+      </div>
+    </div>
+    <div class="justification reveal">
+      <h3>Por que a Gratificação?</h3>
+      <p><strong>O reajuste linear de 5,25%</strong> é insuficiente para recompor a defasagem acumulada de mais de uma década. A diferença entre o salário atual e o corrigido pelo IPCA supera R$ 2.500,00.</p>
+      <p><span class="hl-green">A gratificação de R$ 3.000</span> não se incorpora ao vencimento base, podendo ser vinculada a critérios de produtividade ou responsabilidade técnica efetiva, e é destinada apenas a quem está na ativa — cedidos e licenciados ficam excluídos.</p>
+      <p>O total de R$ 9.897,14 retorna a ~6,1 SM — próximo do que se praticava em 2016 (6,54 SM).</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONCLUSÃO -->
+<section class="section" id="conclusao">
+  <div class="section-header reveal">
+    <div class="section-num" style="background:var(--yellow);color:var(--black)">4</div>
+    <h2 class="section-title">Conclusão · Análise de Viabilidade</h2>
+  </div>
+
+  <div class="conclusion-grid reveal">
+    <div class="conc-col pros">
+      <div class="conc-header">Pontos Positivos</div>
+      <div class="conc-body">
+        <div class="conc-item">
+          <h4>Retenção de equipe técnica altamente qualificada</h4>
+          <p>A recomposição salarial alinha a remuneração dos engenheiros e arquitetos municipais com o mercado privado, reduzindo a evasão de profissionais estratégicos para a gestão de obras e projetos do município.</p>
+        </div>
+        <div class="conc-item">
+          <h4>Sem efeito cascata para outras categorias</h4>
+          <p>Como a gratificação é direcionada especificamente a esta categoria técnica, não gera precedente automático para que demais setores pleiteiem benefícios similares com base no mesmo argumento.</p>
+        </div>
+        <div class="conc-item">
+          <h4>Impacto fiscal controlado</h4>
+          <p>A restrição exclusiva a servidores em efetivo exercício no município exclui cedidos e licenciados, reduzindo significativamente o número de beneficiários e o impacto nas contas públicas.</p>
+        </div>
+      </div>
+    </div>
+    <div class="conc-col cons">
+      <div class="conc-header">Pontos de Atenção</div>
+      <div class="conc-body">
+        <div class="conc-item">
+          <h4>Mecanismo de controle de produtividade</h4>
+          <p>A principal dificuldade reside na criação de critérios objetivos e eficientes para aferir a produtividade ou responsabilidade técnica, evitando que a gratificação se torne apenas um acréscimo indiscriminado.</p>
+        </div>
+        <div class="conc-item">
+          <h4>Necessidade de regulamentação específica</h4>
+          <p>A implementação exige decreto ou lei municipal com definição precisa dos critérios de elegibilidade, periodicidade de avaliação e mecanismos de fiscalização do efetivo exercício das atribuições técnicas.</p>
+        </div>
+        <div class="conc-item">
+          <h4>Possível questionamento jurídico</h4>
+          <p>Servidores excluídos (cedidos ou em licença) podem questionar a constitucionalidade da diferenciação. A fundamentação jurídica precisa ser robusta para mitigar riscos de judicialização.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-footer">
+  <p>A gratificação de responsabilidade técnica é o instrumento mais adequado para recompor a dignidade salarial dos engenheiros e arquitetos da PMT, <strong>sem impacto cascata e com custo fiscal controlado.</strong></p>
+</div>
+
+<footer class="footer">
+  <p>Prefeitura Municipal de Teresina · Engenheiros e Arquitetos · Março 2026 · Fonte: IBGE/IPCA, Decretos Municipais</p>
+</footer>
+
+<script>
+// ===== CHART CONFIG =====
+Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#546278';
+Chart.defaults.devicePixelRatio = window.devicePixelRatio || 2;
+Chart.defaults.responsive = true;
+Chart.defaults.maintainAspectRatio = false;
+
+// Chart 1: Line - Evolução acumulada
+new Chart(document.getElementById('chartLine'), {
+  type: 'line',
+  data: {
+    labels: ['2016','2017','2018','2019','2020','2021','2022','2023','2024','2025','2026'],
+    datasets: [
+      {
+        label: 'Salário Eng. e Arq. (R$)',
+        data: [5757.68, 5757.68, 5757.68, 5955.17, 5955.17, 5955.17, 6553.10, 6553.10, 6553.10, 6553.10, 6897.14],
+        borderColor: '#FBA000',
+        backgroundColor: 'rgba(251,160,0,0.08)',
+        borderWidth: 3,
+        pointBackgroundColor: '#FBA000',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        fill: true,
+        tension: 0.1,
+      },
+      {
+        label: 'Evolução pelo IPCA (R$)',
+        data: [5757.68, 6119.84, 6300.37, 6536.64, 6818.37, 7126.56, 7843.49, 8297.63, 8680.98, 9100.27, 9487.94],
+        borderColor: '#164194',
+        backgroundColor: 'rgba(22,65,148,0.06)',
+        borderWidth: 3,
+        pointBackgroundColor: '#164194',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        fill: true,
+        tension: 0.1,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { intersect: false, mode: 'index' },
+    plugins: {
+      legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } },
+      tooltip: {
+        backgroundColor: 'rgba(29,29,27,0.92)',
+        titleFont: { weight: '700' },
+        padding: 12,
+        cornerRadius: 8,
+        callbacks: {
+          label: ctx => ctx.dataset.label + ': R$ ' + ctx.parsed.y.toLocaleString('pt-BR', {minimumFractionDigits: 2})
+        }
+      }
+    },
+    scales: {
+      y: {
+        grid: { color: '#E8ECF0' },
+        ticks: { callback: v => 'R$ ' + (v/1000).toFixed(0) + 'k' }
+      },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// Chart 2: Bar - Salários Mínimos
+new Chart(document.getElementById('chartSM'), {
+  type: 'bar',
+  data: {
+    labels: ['2016','2018','2020','2022','2024','2026'],
+    datasets: [{
+      label: 'Salários Mínimos',
+      data: [6.54, 6.03, 5.70, 5.43, 4.64, 4.04],
+      backgroundColor: ['#00B1EB','#00B1EB','#00B1EB','#00B1EB','#00B1EB','#E74C3C'],
+      borderRadius: 6,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(29,29,27,0.92)',
+        padding: 10, cornerRadius: 8,
+        callbacks: { label: ctx => ctx.parsed.y.toFixed(2) + ' SM' }
+      }
+    },
+    scales: {
+      y: { grid: { color: '#E8ECF0' }, beginAtZero: true },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// Chart 3: Grouped bar - Real vs IPCA
+new Chart(document.getElementById('chartBar'), {
+  type: 'bar',
+  data: {
+    labels: ['2016','2019','2022','2026*'],
+    datasets: [
+      {
+        label: 'Salário Real',
+        data: [5757.68, 5955.19, 6553.10, 6897.14],
+        backgroundColor: '#00B1EB',
+        borderRadius: 6,
+        borderSkipped: false,
+      },
+      {
+        label: 'Corrigido IPCA',
+        data: [5757.68, 6544.26, 8133.38, 9486.03],
+        backgroundColor: '#FBA000',
+        borderRadius: 6,
+        borderSkipped: false,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { usePointStyle: true, padding: 16 } },
+      tooltip: {
+        backgroundColor: 'rgba(29,29,27,0.92)',
+        padding: 10, cornerRadius: 8,
+        callbacks: { label: ctx => ctx.dataset.label + ': R$ ' + ctx.parsed.y.toLocaleString('pt-BR', {minimumFractionDigits: 2}) }
+      }
+    },
+    scales: {
+      y: {
+        grid: { color: '#E8ECF0' },
+        ticks: { callback: v => 'R$ ' + (v/1000).toFixed(0) + 'k' }
+      },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// Chart 4: Impact
+new Chart(document.getElementById('chartImpact'), {
+  type: 'bar',
+  data: {
+    labels: ['2016','2026 (s/ grat.)','2026 (c/ grat.)'],
+    datasets: [{
+      label: 'Salários Mínimos',
+      data: [6.54, 4.26, 6.11],
+      backgroundColor: ['#00B1EB','#E74C3C','#13A538'],
+      borderRadius: 6,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(29,29,27,0.92)',
+        padding: 10, cornerRadius: 8,
+        callbacks: { label: ctx => ctx.parsed.y.toFixed(2) + ' SM' }
+      }
+    },
+    scales: {
+      y: { grid: { color: '#E8ECF0' }, beginAtZero: true, max: 8 },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// ===== SCROLL REVEAL (iOS-SAFE) =====
+(function() {
+  var reveals = document.querySelectorAll('.reveal');
+  if (!reveals.length) return;
+
+  // Test if IntersectionObserver actually works (iOS file:// can fail silently)
+  var observerWorks = false;
+
+  if ('IntersectionObserver' in window) {
+    try {
+      // Create a test element
+      var testEl = document.createElement('div');
+      testEl.style.cssText = 'position:absolute;top:0;left:0;width:1px;height:1px;';
+      document.body.appendChild(testEl);
+
+      var testObserver = new IntersectionObserver(function(entries) {
+        observerWorks = true;
+        testObserver.disconnect();
+        document.body.removeChild(testEl);
+
+        // Observer confirmed working — enable reveal animations
+        document.body.classList.add('js-reveal-ready');
+
+        // Now observe real elements
+        var realObserver = new IntersectionObserver(function(realEntries) {
+          realEntries.forEach(function(e) {
+            if (e.isIntersecting) {
+              e.target.classList.add('visible');
+              realObserver.unobserve(e.target);
+            }
+          });
+        }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+
+        reveals.forEach(function(r) { realObserver.observe(r); });
+      }, { threshold: 0 });
+
+      testObserver.observe(testEl);
+
+      // Fallback: if observer doesn't fire within 1.5s, show everything
+      setTimeout(function() {
+        if (!observerWorks) {
+          testObserver.disconnect();
+          if (document.body.contains(testEl)) document.body.removeChild(testEl);
+          // Don't add js-reveal-ready — elements stay visible by default
+          reveals.forEach(function(r) { r.classList.add('visible'); });
+        }
+      }, 1500);
+
+    } catch(e) {
+      // Observer error — everything stays visible (default)
+      reveals.forEach(function(r) { r.classList.add('visible'); });
+    }
+  } else {
+    // No IntersectionObserver support — everything visible
+    reveals.forEach(function(r) { r.classList.add('visible'); });
+  }
+})();
+
+// ===== NAV ACTIVE =====
+var navSections = document.querySelectorAll('section[id], .hero[id]');
+var navLinksAll = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', function() {
+  var current = '';
+  navSections.forEach(function(s) {
+    if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id');
+  });
+  navLinksAll.forEach(function(a) {
+    a.classList.remove('active');
+    if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+  });
+}, { passive: true });
+</script>
+</body>
+</html>
